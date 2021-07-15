@@ -15,6 +15,7 @@ namespace InfectionSimulation
         private const int height = 300;
         private Size size = new Size(width, height);
         private List<GameObject> objects = new List<GameObject>();
+        private List<Person>[,] personas = new List<Person>[width, height];
 
         public IEnumerable<GameObject> GameObjects {
             get
@@ -49,22 +50,32 @@ namespace InfectionSimulation
             return rnd.Next(min, max);
         }
 
-        public void Add(GameObject obj)
+        public void Add(GameObject obj, bool isAdded = false)
         {
-            objects.Add(obj);
+            if (!isAdded)
+                objects.Add(obj);
+            
+            if (personas[obj.Position.X, obj.Position.Y] is null)
+            {
+                personas[obj.Position.X, obj.Position.Y] = new List<Person>();
+            }
+
+            personas[obj.Position.X, obj.Position.Y].Add((Person)obj);
         }
 
         public void Remove(GameObject obj)
         {
-            objects.Remove(obj);
+            personas[obj.Position.X, obj.Position.Y].Remove((Person)obj);
         }
 
         public void Update()
         {
             foreach (GameObject obj in GameObjects)
             {
+                Remove(obj);
                 obj.InternalUpdateOn(this);
                 obj.Position = Mod(obj.Position, size);
+                Add(obj, true);
             }
         }
 
@@ -101,9 +112,9 @@ namespace InfectionSimulation
             return new Point(Mod(p.X, s.Width), Mod(p.Y, s.Height));
         }
 
-        public IEnumerable<GameObject> ObjectsAt(Point pos)
+        public List<Person> ObjectsAt(Point pos)
         {
-            return GameObjects.Where(each => each.Position.Equals(pos));
+            return personas[pos.X, pos.Y];
         }
 
     }
