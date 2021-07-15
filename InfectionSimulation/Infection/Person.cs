@@ -25,10 +25,15 @@ namespace InfectionSimulation
             else
             {
                 Color = Color.Blue;
-                if (near.Any(p => p.Infected))
+
+                foreach (Person p in near)
                 {
-                    Infected = true;
-                }
+                    if (p.Infected)
+                    {
+                        Infected = true;
+                        break;
+                    }
+                }                
             }
 
             Forward(world.Random(1, 2));
